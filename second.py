@@ -18,27 +18,24 @@ class Player:
         self.acceleration = 7
         self.score = 0
 
-    def player_movement(self, game):
+    def movement(self, game):
         self.rect.y += self.speed
         if self.rect.top <= 0:
             self.rect.top = 0
         if self.rect.bottom >= game.screen_height:
             self.rect.bottom = game.screen_height
 
+
     def draw(self, game):
         pg.draw.rect(game.screen, WHITE, self.rect)
 
 
-class Oponent:
+class Oponent(Player):
     def __init__(self, game):
-        self.width = 10
-        self.height = 140
+        Player.__init__(self, game)
         self.rect = pg.Rect(10, game.screen_height / 2 - 70, 10, 140)
-        self.speed = 0
-        self.acceleration = 7
-        self.score = 0
 
-    def oponent_movement(self, game):
+    def movement(self, game):
         if self.rect.top < game.ball.rect.y:
             self.rect.top += self.acceleration
         if self.rect.bottom > game.ball.rect.y:
@@ -47,9 +44,6 @@ class Oponent:
             self.rect.top = 0
         if self.rect.bottom >= game.screen_height:
             self.rect.bottom = game.screen_height
-
-    def draw(self, game):
-        pg.draw.rect(game.screen, WHITE, self.rect)
 
 
 class Ball:
@@ -103,7 +97,7 @@ class Ball:
 class Game:
     def __init__(self):
         self.clock = pg.time.Clock()
-        self.FPS = 59
+        self.FPS = 60
         self.screen_width = 1280
         self.screen_height = 960
         self.running = False
@@ -116,7 +110,7 @@ class Game:
         self.oponent = Oponent(self)
         self.ball = Ball(self)
 
-    def main_loop(self):
+    def check_events(self):
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 self.running = False
@@ -140,8 +134,8 @@ class Game:
         self.screen.blit(oponent_text, (600, 470))
 
     def sprites_movement(self):
-        self.player.player_movement(self)
-        self.oponent.oponent_movement(self)
+        self.player.movement(self)
+        self.oponent.movement(self)
         self.ball.ball_movement(self)
 
     def draw_sprites(self):
@@ -149,25 +143,26 @@ class Game:
         self.oponent.draw(self)
         self.ball.draw(self)
 
+    def draw_bg(self):
+        self.screen.fill(BLACK)
+        pg.draw.aaline(self.screen, WHITE, (self.screen_width // 2, 0),
+                       (self.screen_width // 2, self.screen_height))
+
     def start(self):
         pg.init()
         self.game_font = pg.font.Font("freesansbold.ttf", 32)
         self.running = True
         while self.running:
-            self.main_loop()
+            self.check_events()
 
             self.sprites_movement()
 
-            self.screen.fill(BLACK)
-            pg.draw.aaline(self.screen, WHITE, (self.screen_width // 2, 0),
-                           (self.screen_width // 2, self.screen_height))
-
+            self.draw_bg()
             self.draw_sprites()
+            self.draw_stats()
 
             if self.score_time:
                 self.ball.reset(self)
-
-            self.draw_stats()
 
             pg.display.flip()
             self.clock.tick(self.FPS)
