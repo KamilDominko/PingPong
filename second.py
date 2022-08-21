@@ -139,7 +139,7 @@ class Game:
         oponent_text = self.game_font.render(f"{self.oponent.score}", True, WHITE)
         self.screen.blit(oponent_text, (600, 470))
 
-    def sprites_logic(self):
+    def sprites_movement(self):
         self.player.player_movement(self)
         self.oponent.oponent_movement(self)
         self.ball.ball_movement(self)
@@ -155,6 +155,8 @@ class Game:
         self.running = True
         while self.running:
             self.main_loop()
+
+            self.sprites_movement()
 
             self.screen.fill(BLACK)
             pg.draw.aaline(self.screen, WHITE, (self.screen_width // 2, 0),
